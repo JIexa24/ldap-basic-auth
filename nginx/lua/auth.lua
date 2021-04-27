@@ -85,7 +85,7 @@ end
 
 if redis_addr == nil then
   ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
-  ngx.exit(ngx.OK)
+  return ngx.redirect(auth_location.."?uri="..ngx.var.request_uri, 302)
 end
 
 local redis = require "resty.redis"
@@ -112,7 +112,7 @@ end
 if redis_not_connected then
   ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
   ngx.log(ngx.ERR, "Redis connect error")
-  ngx.exit(ngx.OK)
+  return ngx.redirect(auth_location.."?uri="..ngx.var.request_uri, 302)
 end
 
 -- Generate UUID for session
@@ -122,7 +122,7 @@ while true do
   local data, err = red:get(cookie_key_str.."_"..session_key)
   if err then
     ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
-    ngx.exit(ngx.OK)
+    return ngx.redirect(auth_location.."?uri="..ngx.var.request_uri, 302)
   end
 
   local key_exist = "true"
